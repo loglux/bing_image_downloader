@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bing_image_downloader_loglux",
+    name="bing_image_downloader",
     version="1.1.3",  # Incremented from the forked 1.1.2
     author="Loglux",
     author_email="",
