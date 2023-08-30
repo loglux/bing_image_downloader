@@ -27,20 +27,19 @@ pip install .
 ```python
 from bing_image_downloader import downloader
 
-query_string = 'cat'
+search_queries = ["grizzly bear", "black bear", "teddy bear"]
 
-downloader.download(
-    query_string, 
-    limit=100,  
-    output_dir='dataset', 
-    adult_filter_off=True, 
-    force_replace=False, 
-    timeout=60, 
-    verbose=True,
-    size="large",
-    resize_dim=(256, 256),
-    file_types='jpg,png',
-)
+for query in search_queries:
+    downloader.download(query, 
+                        limit=100,  
+                        output_dir='dataset', 
+                        adult_filter_off=True, 
+                        force_replace=False, 
+                        timeout=5, 
+                        verbose=True,
+                        size="medium",
+                        resize_dim=(224, 224),
+                        file_types='jpg,png')
 ```
 
 `query_string` : String to be searched.<br />
