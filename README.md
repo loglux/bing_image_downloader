@@ -39,7 +39,7 @@ downloader.download(
     verbose=True,
     size="large",
     resize_dim=(256, 256),
-    file_types=['jpg', 'png']
+    file_types='jpg,png',
 )
 ```
 
