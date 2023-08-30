@@ -4,15 +4,18 @@ import urllib
 import imghdr
 import posixpath
 import re
+from PIL import Image
+
 
 '''
-Python api to download image form Bing.
-Author: Guru Prasad (g.gaurav541@gmail.com)
+Forked version of Python API to download images from Bing.
+Original Author: Guru Prasad (g.gaurav541@gmail.com)
+Modified By: Loglux
+Added features: Resizing, file types, and size filters
 '''
-
 
 class Bing:
-    def __init__(self, query, limit, output_dir, adult, timeout,  filter='', verbose=True):
+    def __init__(self, query, limit, output_dir, adult, timeout,  filter='', size='', verbose=True):
         self.download_count = 0
         self.query = query
         self.output_dir = output_dir
@@ -20,6 +23,7 @@ class Bing:
         self.filter = filter
         self.verbose = verbose
         self.seen = set()
+        self.size = size
 
         assert type(limit) == int, "limit must be integer"
         self.limit = limit
@@ -53,7 +57,7 @@ class Bing:
                 return ""
 
 
-    def save_image(self, link, file_path):
+    def save_image(self, link, file_path, resize_dim=None):
         request = urllib.request.Request(link, None, self.headers)
         image = urllib.request.urlopen(request, timeout=self.timeout).read()
         if not imghdr.what(None, image):
@@ -62,8 +66,16 @@ class Bing:
         with open(str(file_path), 'wb') as f:
             f.write(image)
 
-    
-    def download_image(self, link):
+        if resize_dim:
+            img = Image.open(file_path)
+            img = img.resize(resize_dim, Image.Resampling.LANCZOS)
+            img.save(file_path)
+
+    def download_image(self, link, resize_dim=None, file_types=None):
+        if file_types:
+            current_file_type = link.split('.')[-1].lower()
+            if current_file_type not in file_types:
+                return  # skip this image, as it doesn't match the desired file types
         self.download_count += 1
         # Get the image link
         try:
@@ -78,7 +90,7 @@ class Bing:
                 print("[%] Downloading Image #{} from {}".format(self.download_count, link))
                 
             self.save_image(link, self.output_dir.joinpath("Image_{}.{}".format(
-                str(self.download_count), file_type)))
+                str(self.download_count), file_type)), resize_dim)
             if self.verbose:
                 print("[%] File Downloaded !\n")
 
@@ -87,14 +99,17 @@ class Bing:
             print("[!] Issue getting: {}\n[!] Error:: {}".format(link, e))
 
     
-    def run(self):
+    def run(self, file_types=None, resize_dim=None):
         while self.download_count < self.limit:
             if self.verbose:
                 print('\n\n[!!]Indexing page: {}\n'.format(self.page_counter + 1))
             # Parse the page source and download pics
             request_url = 'https://www.bing.com/images/async?q=' + urllib.parse.quote_plus(self.query) \
                           + '&first=' + str(self.page_counter) + '&count=' + str(self.limit) \
-                          + '&adlt=' + self.adult + '&qft=' + ('' if self.filter is None else self.get_filter(self.filter))
+                          + '&adlt=' + self.adult + '&qft=' + (
+                              '' if self.filter is None else self.get_filter(self.filter))
+            if self.size:
+                request_url += f'+filterui:imagesize-{self.size}'
             request = urllib.request.Request(request_url, None, headers=self.headers)
             response = urllib.request.urlopen(request)
             html = response.read().decode('utf8')
@@ -109,7 +124,7 @@ class Bing:
             for link in links:
                 if self.download_count < self.limit and link not in self.seen:
                     self.seen.add(link)
-                    self.download_image(link)
+                    self.download_image(link, resize_dim, file_types)
 
             self.page_counter += 1
         print("\n\n[%] Done. Downloaded {} images.".format(self.download_count))

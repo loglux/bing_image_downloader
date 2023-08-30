@@ -1,36 +1,46 @@
-![GitHub top language](https://img.shields.io/github/languages/top/gurugaurav/bing_image_downloader)
-![GitHub](https://img.shields.io/github/license/gurugaurav/bing_image_downloader)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fgurugaurav%2Fbing_image_downloader&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
-## Bing Image Downloader
-<hr>
+# Forked Bing Image Downloader
+## Overview
+This is a forked version of Bing Image Downloader with additional features. This Python library allows you to download a bulk of images from Bing.com.
 
-Python library to download bulk of images form Bing.com.
-This package uses async url, which makes it very fast while downloading.<br/>
+### New Features
+- `size`: (optional, default is "") Size of image, choose from [small, medium, large, wallpaper].
+- `resize_dim`: (optional, default is `None`) Resize the image to given dimensions, e.g., (256, 256).
+- `file_types`: (optional, default is `None` which means all types) Choose from 'jpg', 'png', 'gif', 'bmp'.
 
-
-### Disclaimer<br />
-
+### Disclaimer
 This program lets you download tons of images from Bing.
 Please do not download or use any image that violates its copyright terms. 
 
 ### Installation <br />
 ```sh
-pip install bing-image-downloader
+pip install git+https://github.com/loglux/bing_image_downloader.git
 ```
 
 or 
 ```bash
-git clone https://github.com/gurugaurav/bing_image_downloader
+git clone https://github.com/loglux/bing_image_downloader
 cd bing_image_downloader
 pip install .
 ```
 
-
-
 ### Usage <br />
 ```python
 from bing_image_downloader import downloader
-downloader.download(query_string, limit=100,  output_dir='dataset', adult_filter_off=True, force_replace=False, timeout=60, verbose=True)
+
+query_string = 'cat'
+
+downloader.download(
+    query_string, 
+    limit=100,  
+    output_dir='dataset', 
+    adult_filter_off=True, 
+    force_replace=False, 
+    timeout=60, 
+    verbose=True,
+    size="large",
+    resize_dim=(256, 256),
+    file_types=['jpg', 'png']
+)
 ```
 
 `query_string` : String to be searched.<br />
@@ -41,24 +51,13 @@ downloader.download(query_string, limit=100,  output_dir='dataset', adult_filter
 `timeout` : (optional, default is 60) timeout for connection in seconds.<br />
 `filter` : (optional, default is "") filter, choose from [line, photo, clipart, gif, transparent]<br />
 `verbose` : (optional, default is True) Enable downloaded message.<br />
+- `size`: (optional, default is "") Size of image, choose from [small, medium, large, wallpaper].
+- `resize_dim`: (optional, default is `None`) Resize the image to given dimensions, e.g., (256, 256).
+- `file_types`: (optional, default is `None` which means all types) Choose from 'jpg', 'png', 'gif', 'bmp'.
 
+## Original Bing Image Downloader
+https://github.com/gurugaurav/bing_image_downloader
 
-You can also test the programm by runnning `test.py keyword`
-
-
-### PyPi <br />
-https://pypi.org/project/bing-image-downloader/
-
-
-
-
-</br>
-
-### Donate
-You can buy me a coffee if this project was helpful to you.</br>
-
-[<img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-1.svg" alt="Show your support" width="180"/>](https://www.buymeacoffee.com/gurugaurav)
-  
 
 
 

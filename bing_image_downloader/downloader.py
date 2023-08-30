@@ -9,7 +9,7 @@ except ImportError:  # Python 3
 
 
 def download(query, limit=100, output_dir='dataset', adult_filter_off=True, 
-force_replace=False, timeout=60, filter="", verbose=True):
+force_replace=False, timeout=60, filter="", size="", resize_dim=None, file_type=None, verbose=True):
 
     # engine = 'bing'
     if adult_filter_off:
@@ -34,9 +34,11 @@ force_replace=False, timeout=60, filter="", verbose=True):
         sys.exit(1)
         
     print("[%] Downloading Images to {}".format(str(image_dir.absolute())))
-    bing = Bing(query, limit, image_dir, adult, timeout, filter, verbose)
-    bing.run()
+    bing = Bing(query, limit, image_dir, adult, timeout, filter, size, verbose)
+    bing.run(file_type, resize_dim)
 
 
 if __name__ == '__main__':
-    download('dog', output_dir="..\\Users\\cat", limit=10, timeout=1)
+    # download('dog', output_dir="..\\Users\\cat", limit=10, timeout=1)
+    download('dog', output_dir="..\\Users\\cat", limit=10, timeout=1, resize_dim=(224, 224))
+
