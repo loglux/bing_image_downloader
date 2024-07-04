@@ -12,17 +12,27 @@ This program lets you download tons of images from Bing.
 Please do not download or use any image that violates its copyright terms. 
 
 ### Installation <br />
-```sh
+
+#### Variant 1: From PyPI
+
+First, uninstall the original bing_image_donwloader if installed:
+```bash
+pip uninstall bing_image_downloader -y
+````
+Then install the forked version:
+```bash
+pip install bing-image-downloader-ext
+```
+#### Variant 2: From GitHub
+```bash
 pip install git+https://github.com/loglux/bing_image_downloader.git
 ```
-
 or 
 ```bash
 git clone https://github.com/loglux/bing_image_downloader
 cd bing_image_downloader
 pip install .
 ```
-
 ### Usage <br />
 ```python
 from bing_image_downloader import downloader
@@ -41,7 +51,7 @@ for query in search_queries:
                         resize_dim=(224, 224),
                         file_types='jpg,png')
 ```
-
+### Parameters
 `query_string` : String to be searched.<br />
 `limit` : (optional, default is 100) Number of images to download.<br />
 `output_dir` : (optional, default is 'dataset') Name of output dir.<br />

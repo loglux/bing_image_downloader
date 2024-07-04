@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bing_image_downloader_ext",
-    version="1.1.3",  # Incremented from the forked 1.1.2
+    version="1.1.4",  # Incremented from the forked 1.1.2
     author="Loglux",
     author_email="",
     description="Forked version of bing_image_downloader with support for resizing, file types, and size filters",
