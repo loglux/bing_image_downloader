@@ -49,7 +49,7 @@ for query in search_queries:
                         verbose=True,
                         size="medium",
                         resize_dim=(224, 224),
-                        file_types='jpg,png')
+                        file_type='jpg,png')
 ```
 ### Parameters
 `query_string` : String to be searched.<br />
