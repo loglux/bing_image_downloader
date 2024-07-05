@@ -1,4 +1,3 @@
-# import os, sys
 import sys
 import shutil
 from pathlib import Path
@@ -9,15 +8,19 @@ except ImportError:  # Python 3
     from .bing import Bing
 
 
-def download(query, limit=100, output_dir='dataset', adult_filter_off=True,
-             force_replace=False, timeout=60, filter="", size="", resize_dim=None, file_type=None, verbose=True):
+def download(label, limit=100, output_dir='dataset', adult_filter_off=True,
+             force_replace=False, timeout=60, filter="", size="", resize_dim=None, file_type=None, verbose=True, label_filename=False):
     # engine = 'bing'
     if adult_filter_off:
         adult = 'off'
     else:
         adult = 'on'
 
-    image_dir = Path(output_dir).joinpath(query).absolute()
+    if label_filename:
+        folder = ''
+    else:
+        folder = label
+    image_dir = Path(output_dir).joinpath(folder).absolute()
 
     if force_replace:
         if Path.is_dir(image_dir):
@@ -33,7 +36,7 @@ def download(query, limit=100, output_dir='dataset', adult_filter_off=True,
         sys.exit(1)
 
     print("[%] Downloading Images to {}".format(str(image_dir.absolute())))
-    bing = Bing(query, limit, image_dir, adult, timeout, filter, size, verbose)
+    bing = Bing(label, limit, image_dir, adult, timeout, filter, size, verbose, label_filename)
     bing.run(file_type, resize_dim)
 
 

@@ -1,36 +1,36 @@
-# from pathlib import Path
+import re
+import urllib.error
 import urllib.request
-import urllib
+import urllib.parse
+from PIL import Image
 import imghdr
 import posixpath
-import re
-from PIL import Image
 
 '''
 Forked version of Python API to download images from Bing.
 Original Author: Guru Prasad (g.gaurav541@gmail.com)
 Modified By: Loglux
-Added features: Resizing, file types, and size filters
+Updated save_image function: Now it includes exception handling for HTTPError and URLError.
+Added features: Resizing, file types, size filters, and label_filename
 '''
 
 
 class Bing:
-    def __init__(self, query, limit, output_dir, adult, timeout, filter='', size='', verbose=True):
+    def __init__(self, label, limit, output_dir, adult, timeout, filter='', size='', verbose=True,
+                 label_filename=False):
         self.download_count = 0
-        self.query = query
+        self.label = label
         self.output_dir = output_dir
         self.adult = adult
         self.filter = filter
         self.verbose = verbose
         self.seen = set()
         self.size = size
-
+        self.use_label_as_filename = label_filename
         assert type(limit) == int, "limit must be integer"
         self.limit = limit
         assert type(timeout) == int, "timeout must be integer"
         self.timeout = timeout
-
-        # self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0'}
         self.page_counter = 0
         self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
                                       'AppleWebKit/537.11 (KHTML, like Gecko) '
@@ -56,18 +56,29 @@ class Bing:
             return ""
 
     def save_image(self, link, file_path, resize_dim=None):
-        request = urllib.request.Request(link, None, self.headers)
-        image = urllib.request.urlopen(request, timeout=self.timeout).read()
-        if not imghdr.what(None, image):
-            print('[Error]Invalid image, not saving {}\n'.format(link))
-            raise ValueError('Invalid image, not saving {}\n'.format(link))
-        with open(str(file_path), 'wb') as f:
-            f.write(image)
-
-        if resize_dim:
-            img = Image.open(file_path)
-            img = img.resize(resize_dim, Image.Resampling.LANCZOS)
-            img.save(file_path)
+        try:
+            request = urllib.request.Request(link, None, self.headers)
+            response = urllib.request.urlopen(request, timeout=self.timeout)
+        except urllib.error.HTTPError as e:
+            # The server couldn't fulfill the request (i.e., a 404 or 500 error)
+            print('HTTPError: {}, link: {}'.format(e.code, link))
+            raise
+        except urllib.error.URLError as e:
+            # Failed to reach the server (i.e., the server is down or the URL is incorrect)
+            print('URLError: {}, link: {}'.format(e.reason, link))
+            raise
+        else:
+            # If there were no errors, then proceed to saving the image
+            image = response.read()
+            if not imghdr.what(None, image):
+                print('[Error]Invalid image, not saving {}\n'.format(link))
+                raise ValueError('Invalid image, not saving {}\n'.format(link))
+            with open(str(file_path), 'wb') as f:
+                f.write(image)
+            if resize_dim:
+                img = Image.open(file_path)
+                img = img.resize(resize_dim, Image.LANCZOS)
+                img.save(file_path)
 
     def download_image(self, link, resize_dim=None, file_types=None):
         if file_types:
@@ -87,8 +98,18 @@ class Bing:
                 # Download the image
                 print("[%] Downloading Image #{} from {}".format(self.download_count, link))
 
-            self.save_image(link, self.output_dir.joinpath("Image_{}.{}".format(
-                str(self.download_count), file_type)), resize_dim)
+            # determine file name based on the flag
+            if self.use_label_as_filename:
+                file_name = f"{self.label.replace(' ', '_')}_{str(self.download_count).zfill(4)}.{file_type}"
+            else:
+                file_name = f"Image_{str(self.download_count).zfill(4)}.{file_type}"
+
+            self.save_image(
+                link,
+                self.output_dir.joinpath(file_name),
+                resize_dim
+            )
+
             if self.verbose:
                 print("[%] File Downloaded !\n")
 
@@ -101,7 +122,7 @@ class Bing:
             if self.verbose:
                 print('\n\n[!!]Indexing page: {}\n'.format(self.page_counter + 1))
             # Parse the page source and download pics
-            request_url = 'https://www.bing.com/images/async?q=' + urllib.parse.quote_plus(self.query) \
+            request_url = 'https://www.bing.com/images/async?q=' + urllib.parse.quote_plus(self.label) \
                           + '&first=' + str(self.page_counter) + '&count=' + str(self.limit) \
                           + '&adlt=' + self.adult + '&qft=' + (
                               '' if self.filter is None else self.get_filter(self.filter))
